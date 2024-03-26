@@ -1,4 +1,13 @@
-import { MarkdownView, Plugin, TFile, getAllTags, Notice, parseFrontMatterStringArray, TAbstractFile, normalizePath } from 'obsidian';
+import {
+	MarkdownView,
+	Plugin,
+	TFile,
+	getAllTags,
+	Notice,
+	parseFrontMatterStringArray,
+	TAbstractFile,
+	normalizePath,
+} from 'obsidian';
 import { DEFAULT_SETTINGS, AutoNoteMoverSettings, AutoNoteMoverSettingTab } from 'settings/settings';
 import { fileMove, getTriggerIndicator, isFmDisable } from 'utils/Utils';
 
@@ -47,7 +56,7 @@ export default class AutoNoteMover extends Plugin {
 			const fileName = file.basename;
 			const fileFullName = file.basename + '.' + file.extension;
 			const settingsLength = folderTagPattern.length;
-			const cacheTag = getAllTags(fileCache);
+			const cacheTag = getAllTags(fileCache) ?? [];
 
 			// checker
 			for (let i = 0; i < settingsLength; i++) {
@@ -116,6 +125,23 @@ export default class AutoNoteMover extends Plugin {
 			}
 			fileCheck(view.file, undefined, 'cmd');
 		};
+
+		const moveAllNotesCommand = () => {
+			const files = this.app.vault.getMarkdownFiles();
+			const filesLength = files.length;
+			for (let i = 0; i < filesLength; i++) {
+				fileCheck(files[i], undefined, 'cmd');
+			}
+			new Notice(`All ${filesLength} notes have been moved.`);
+		};
+
+		this.addCommand({
+			id: 'Move-all-notes',
+			name: 'Move all notes',
+			callback: () => {
+				moveAllNotesCommand();
+			},
+		});
 
 		this.addCommand({
 			id: 'Move-the-note',
